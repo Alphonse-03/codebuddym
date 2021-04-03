@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="container">
+    <form action="timeline" method="POST">
+        {% csrf_token %}
+        <input type="radio" id="cpp" name="choice" value="C++">:C++<br>
+        <input type="radio" id="c" name="choice" value="C">:C<br>
+        <input type="radio" id="java" name="choice" value="Java">:Java<br>
+        <input type="radio" id="python" name="choice" value="Python">:Python<br>
+        <input type="submit" value="submit">
+    </form></div>
+{% endblock %}
