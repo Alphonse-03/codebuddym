@@ -1,19 +1,25 @@
 {% extends 'base.html' %}
 {% block body %}
 <div class="container">
-    <form action="test" method="POST">
+    <form method="POST">
         {% csrf_token %}
+    
         {% for key, value in questions.items %} 
         
-        
-        {{value.qno}}){{value.question}}
+        <div>
+            {{key}}){{value.question|safe}}
+        <br>
+        {{value.ans}}
         <br>
         <input type="radio" id="1" name="{{key}}" value="1">:{{value.option1}}<br>
         <input type="radio" id="2" name="{{key}}" value="2">:{{value.option2}}<br>
         <input type="radio" id="3" name="{{key}}" value="3">:{{value.option3}}<br>
         <input type="radio" id="4" name="{{key}}" value="4">:{{value.option4}}<br>
+      
+        </div>
         
         {% endfor %}
+      
         <input type="submit" value="submit">
     </form>
 </div>

@@ -29,21 +29,6 @@ class Profile(models.Model):
     def __str__(self):
         return self.username
 
-class ConnectRequest(models.Model):
-    idno = models.AutoField(primary_key=True)
-    sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="sender")
-    receiver = models.ForeignKey(Profile,on_delete=models.CASCADE, related_name="receiver")
-    
-    choice=(
-        ("Accepted","Accepted"),
-        ("Declined","Declined"),
-        ("Pending","Pending")
-    )
-
-    status=models.CharField(max_length=10,choices=choice,blank=True)
-    
-    def __str__(self):
-        return f"{self.sender} to {self.receiver} status {self.status}"
 
 
 
@@ -51,10 +36,10 @@ class C(models.Model):
     qno=models.AutoField(primary_key=True)
     question=models.TextField()
     
-    option1=models.CharField(max_length=100,null='true')
-    option2=models.CharField(max_length=100,null='true')
-    option3=models.CharField(max_length=100,null='true')
-    option4=models.CharField(max_length=100,null='true')
+    option1=models.CharField(max_length=10000,null='true')
+    option2=models.CharField(max_length=10000,null='true')
+    option3=models.CharField(max_length=10000,null='true')
+    option4=models.CharField(max_length=10000,null='true')
     ans=models.CharField(max_length=1,null='true')
     choices = (
         ('1', option1),
@@ -64,7 +49,7 @@ class C(models.Model):
     )
     answer=models.CharField(max_length=1, choices=choices)
     def __str__(self):
-        return self.question
+        return self.question[0:100]
 
 
 class Cpp(models.Model):
@@ -101,7 +86,7 @@ class Java(models.Model):
     )
     answer=models.CharField(max_length=1, choices=choices)
     def __str__(self):
-        return self.question
+        return self.question[0:150]
 
 
 class Python(models.Model):
@@ -121,3 +106,32 @@ class Python(models.Model):
     answer=models.CharField(max_length=1, choices=choices)
     def __str__(self):
         return self.question
+
+
+class Message(models.Model):
+    mno=models.AutoField(primary_key=True)
+    sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="Msender")
+    receiver = models.ForeignKey(Profile,on_delete=models.CASCADE, related_name="Mreceiver")
+    mess=models.CharField(max_length=2000,null='true')
+    read=models.BooleanField(default=False)
+    time=models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+         return f"{self.sender} to {self.receiver} status {self.mess}"
+
+
+class ConnectRequest(models.Model):
+    idno = models.AutoField(primary_key=True)
+    sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="sender")
+    receiver = models.ForeignKey(Profile,on_delete=models.CASCADE, related_name="receiver")
+    
+    choice=(
+        ("Accepted","Accepted"),
+        ("Declined","Declined"),
+        ("Pending","Pending")
+    )
+
+    status=models.CharField(max_length=10,choices=choice,blank=True)
+    
+    def __str__(self):
+         return f"{self.sender} to {self.receiver} status {self.status}"

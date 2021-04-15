@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block body %}
+
+{% for mess in message %}
+{{mess}}<br>
+{% endfor %}
+
+
+
+ <form action="message/{{receiver}}" method="POST">
+    {% csrf_token %}
+    <input type="text" name="message" id="message">
+    <input type="submit" value="send">
+</form>
+  
+  {% endblock %} 

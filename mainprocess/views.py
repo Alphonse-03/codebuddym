@@ -2,11 +2,11 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import login,logout,authenticate
-from .models import Profile,C,Cpp,Java,Python,ConnectRequest
+from mainprocess.models import Profile,C,Cpp,Java,Python,ConnectRequest,Message
 import random 
 from django.db.models import Q
 # Create your views here.
-
+flag=True
 def home(request):
     if request.user.is_authenticated:
         n=request.user
@@ -51,20 +51,34 @@ def test(request):
         if choice=='Python':
             que=Python.objects.all()
         
-        quesitions=[]
+        
+        questions=[]
         un=['a','b','c','d','e','f','g','h','i','j']
-        #un=['a','b','c']
+
         for q in que:
-            if q not in quesitions:
-                quesitions.append(q)
+            if q not in questions:
+                questions.append(q)
             else:
                 continue
-        sampling = random.sample(quesitions, 10)
-   
+        sampling = random.sample(questions, 10)
+
+        print(sampling)
+
+        correctAnswers=[]
+        for j in sampling:
+              
+                correctAnswers.append(j.ans)
+
+
+        print(sampling)
+
+      
+
         d = dict(zip(un,sampling))
+      
         answers=[]
         if request.method=="POST":
-            answers.append(request.POST['a'])
+            answers.append(request.POST['a'])    
             answers.append(request.POST['b'])
             answers.append(request.POST['c'])
             answers.append(request.POST['d'])
@@ -74,10 +88,10 @@ def test(request):
             answers.append(request.POST['h'])
             answers.append(request.POST['i'])
             answers.append(request.POST['j'])      
-            correctAnswers=[]
+    
             marks=0
-            for q in sampling:
-                correctAnswers.append(q.ans)
+            print(answers)
+            
             for i in range(0,10):
                 if correctAnswers[i]==answers[i]:
                     marks=marks+1
@@ -94,10 +108,11 @@ def test(request):
                 category="Silver"
             elif marks>=0 and marks<=1:
                 category="Bronze"
-
+            
             Profile.objects.filter(username=n).update(marks=marks,category=category)
             return redirect("profile")
-        return render(request,"code/test.html",{'questions':d})
+
+        return render(request,"code/test.html",{'questions':d,'a':1})
 
 def loginhandle(request):
     if request.method =="POST":
@@ -160,10 +175,22 @@ def buddylist(request):
 
     not_to_be_included_list=[]
 
-  
+    accepted_list=[]
     list_of_profile=[]
     
-    not_to_be_included=ConnectRequest.objects.filter(Q(sender__username__icontains=username))
+    #pending list
+    not_to_be_included=ConnectRequest.objects.filter(Q(sender__username__icontains=username)).filter(status="Pending")
+
+    #accepted list
+    liss=ConnectRequest.objects.filter(sender__username__icontains=username).filter(status="Accepted")
+    liss2=ConnectRequest.objects.filter(receiver__username__icontains=username).filter(status="Accepted")
+
+    for receivers in liss:
+        accepted_list.append(receivers.receiver)
+
+    for senders in liss2:
+        accepted_list.append(senders.sender)
+
 
     #receiver is a foreign key so i am using it for connecting it to the Profile model so that i can iterate the 
     #informations from the Profile model
@@ -175,12 +202,10 @@ def buddylist(request):
 
     list_of_profile=list(all_profile)
 
-    actual_list=set(list_of_profile)-set(not_to_be_included_list)
-
+    actual_list=set(list_of_profile)-set(not_to_be_included_list)-set(accepted_list)
 
     pending_list=not_to_be_included_list
-    print(actual_list)
-    print(pending_list)
+  
     return render(request,"code/buddylist.html",{'buddy':actual_list,'pendinglist':pending_list})
 
 def budprofile(request,slug):
@@ -235,12 +260,6 @@ def cancelrequest(request,slug):
     return redirect("buddylist")
 
 
-
-
-
-
-
-
 def acceptrequest(request,slug):
     sender=slug
     receiver=request.user.username
@@ -256,3 +275,45 @@ def acceptrequest(request,slug):
 
     
     return redirect("requestlist")
+
+
+
+def friendlist(request):
+    username=request.user.username
+
+    liss=ConnectRequest.objects.filter(sender__username__icontains=username).filter(status="Accepted")
+    liss2=ConnectRequest.objects.filter(receiver__username__icontains=username).filter(status="Accepted")
+
+    accepted_list=[]
+
+    for receivers in liss:
+        accepted_list.append(receivers.receiver)
+
+    for senders in liss2:
+        accepted_list.append(senders.sender)
+
+    return render(request,"code/friendlist.html",{'accepted_list':accepted_list})
+
+
+def chatting(request,receiver):
+    sender=request.user
+    params=["messagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessage",
+        "dsyhbs sf hufesdsdnv fdbvjnfvn vnv sd bdfv fv nsd v nfdvn nvjdsvndfi fb ",
+        "sdvin usfnvfefdnn fnmfbjkfbm   dfb njdfb  xifbjcn  fcbfdl kdfbnkdmzelbnbij bfkvcn"
+    ]
+    return render(request,"code/message.html",{"message":params,"receiver":receiver})
+
+
+def message(request,receiver):
+    print("in the message")
+    if request.method=="POST":
+        
+        mess=request.POST['message']
+        receiver_user = Profile.objects.get(username=receiver)
+        sender=request.user
+        sender_user=Profile.objects.get(username=sender.username)
+    
+        thread=Message(sender=sender_user,receiver=receiver_user,mess=mess)
+
+        thread.save()
+    return redirect("message")

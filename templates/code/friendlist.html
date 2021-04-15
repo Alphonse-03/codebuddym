@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="container my-3">
+    <div class="row">
+        {% for bud in accepted_list %} 
+   
+        <div class="col col-xs-12 col-sm-12 col-md-6 col-lg-6">
+
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+
+                    <h5 class="card-title">{{bud.name}}</h5>
+                    <a class="btn btn-primary" href="/bud/{{bud.username}}">view Profile</a>
+                    <p class="card-text">{{bud.email}};</p>
+                    <p class="card-text">{{bud.category}}<p>
+                    <a class="btn btn-info" id="demo" href="/chat/{{bud.username}}">Message</a>
+                </div>
+            </div>
+        </div>    
+  
+{% endfor %}
+
+</div>
+
+</div>
+{% endblock %}
